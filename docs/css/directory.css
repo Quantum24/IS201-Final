@@ -1,0 +1,86 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    color: #ffffff;
+    background: linear-gradient(180deg, #141414 0%, #000000 100%);
+}
+
+.page {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 20px 16px 36px;
+}
+
+.hero {
+    background: linear-gradient(130deg, #111111 0%, #1d1d1d 100%);
+    border-radius: 14px;
+    padding: 24px;
+    color: #f5fbff;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+}
+
+.eyebrow {
+    margin: 0;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #ffe7ab;
+}
+
+.btn {
+    display: inline-block;
+    margin-top: 10px;
+    background: #ffd166;
+    color: #1a1a1a;
+    text-decoration: none;
+    font-weight: 700;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 16px;
+}
+
+.card {
+    background: #0d0d0d;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+.code-card {
+    margin-top: 14px;
+}
+
+pre {
+    margin: 0;
+    overflow-x: auto;
+    background: #030303;
+    color: #f1f8ff;
+    padding: 14px;
+    border-radius: 8px;
+}
+
+a {
+    color: #9dc9ff;
+}
+
+a:hover {
+    color: #ffe7ab;
+    text-decoration: underline;
+}
+
+@media (max-width: 760px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}

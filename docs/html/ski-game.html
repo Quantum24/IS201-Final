@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ski Line Rush</title>
+    <style>
+        :root {
+            --bg1: #000000;
+            --bg2: #101010;
+            --panel: #0d0d0d;
+            --ink: #ffffff;
+            --accent: #ffcc66;
+            --accent2: #2f88d8;
+            --good: #1f8b4c;
+            --bad: #b63131;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Trebuchet MS", "Segoe UI", Tahoma, sans-serif;
+            color: #eef6ff;
+            background: radial-gradient(circle at 10% 0%, #1b1b1b 0%, var(--bg2) 35%, var(--bg1) 100%);
+            min-height: 100vh;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 18px;
+        }
+
+        .top-nav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .top-nav a {
+            text-decoration: none;
+            color: #f1f7ff;
+            border: 1px solid #3b3b3b;
+            border-radius: 999px;
+            padding: 7px 12px;
+            background: rgba(22, 22, 22, 0.9);
+            font-weight: 700;
+        }
+
+        .hero {
+            background: linear-gradient(130deg, #0d0d0d 0%, #1a1a1a 55%, #282828 100%);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45);
+            margin-bottom: 14px;
+        }
+
+        .hero h1 {
+            margin: 0;
+        }
+
+        .hero p {
+            margin-bottom: 0;
+            color: #dddddd;
+            max-width: 780px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 14px;
+        }
+
+        .card {
+            background: var(--panel);
+            color: var(--ink);
+            border-radius: 12px;
+            border: 1px solid #2a2a2a;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+            padding: 14px;
+        }
+
+        .hud {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(110px, 1fr));
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .stat {
+            background: #141414;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            padding: 8px;
+        }
+
+        .stat label {
+            display: block;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #b8b8b8;
+            margin-bottom: 2px;
+            font-weight: 700;
+        }
+
+        .stat.boost label {
+            color: #ffe7ab;
+        }
+
+        .stat strong {
+            font-size: 1.06rem;
+        }
+
+        .stat.boost strong {
+            color: var(--accent);
+        }
+
+        .canvas-wrap {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #2a2a2a;
+            background: #d8f0ff;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            background: linear-gradient(180deg, #2f3b49 0%, #6e7f92 42%, #b8c5d1 100%);
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
+            background: rgba(11, 27, 45, 0.5);
+            text-align: center;
+        }
+
+        .overlay-panel {
+            background: rgba(12, 12, 12, 0.96);
+            color: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #2f2f2f;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
+            max-width: 560px;
+            padding: 18px;
+        }
+
+        .overlay h2 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .overlay p {
+            margin-top: 0;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            border-radius: 999px;
+            background: var(--accent2);
+            color: #ffffff;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 9px 16px;
+        }
+
+        button:hover {
+            filter: brightness(1.05);
+        }
+
+        .ghost {
+            background: #1a1a1a;
+            color: #ffffff;
+            border: 1px solid #3b3b3b;
+        }
+
+        .ghost:hover {
+            border-color: #5a5a5a;
+            color: #ffffff;
+        }
+
+        .tip-list {
+            margin: 0;
+            padding-left: 1rem;
+            line-height: 1.6;
+        }
+
+        .good {
+            color: var(--good);
+            font-weight: 700;
+        }
+
+        .bad {
+            color: var(--bad);
+            grid-template-columns: repeat(5, minmax(92px, 1fr));
+        }
+
+        .small {
+            color: #c6c6c6;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .hud {
+                grid-template-columns: repeat(2, minmax(110px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="top-nav">
+            <a href="index.html">Home</a>
+            <a href="resume.html">Resume</a>
+            <a href="scratch.html">Ski Page</a>
+            <a href="ski-game.html" aria-current="page">Ski Game</a>
+        </div>
+
+        <header class="hero">
+            <h1>Ski Line Rush</h1>
+            <p>Thread the mountain, dodge trees and ice, and collect powder points. Build streaks for score multipliers and survive as speed ramps up.</p>
+        </header>
+
+        <div class="layout">
+            <section class="card">
+                <div class="hud">
+                    <div class="stat"><label>Distance</label><strong id="distance">0 m</strong></div>
+                    <div class="stat"><label>Score</label><strong id="score">0</strong></div>
+                    <div class="stat"><label>Lives</label><strong id="lives">3</strong></div>
+                    <div class="stat"><label>Best Run</label><strong id="best">0</strong></div>
+                    <div class="stat boost"><label>Boost</label><strong id="boost">0%</strong></div>
+                </div>
+
+                <div class="canvas-wrap">
+                    <canvas id="game" width="900" height="520" aria-label="Ski game canvas"></canvas>
+                    <div class="overlay" id="overlay">
+                        <div class="overlay-panel">
+                            <h2 id="overlayTitle">Ready to Drop In?</h2>
+                            <p id="overlayText">Use Left/Right or A/D to carve. Hit Space for a quick burst. Avoid trees and ice, and grab powder points.</p>
+                            <div class="actions">
+                                <button id="startBtn" type="button">Start Run</button>
+                                <button id="restartBtn" class="ghost" type="button">Restart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="card">
+                <h2>How To Play</h2>
+                <ul class="tip-list">
+                    <li>Move: Left/Right arrows or A/D.</li>
+                    <li>Burst: Press Space for a short speed boost.</li>
+                    <li>Powder points = score bonus and streak.</li>
+                    <li>Tree or ice = lose a life and streak.</li>
+                    <li>Game speed increases as distance grows.</li>
+                </ul>
+
+                <h3>Run Status</h3>
+                <p id="status" class="small">Waiting to start.</p>
+                <p id="streakInfo" class="small">Streak: 0</p>
+                <p id="resultText" class="small">No run completed yet.</p>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const canvas = document.getElementById("game");
+            const ctx = canvas.getContext("2d");
+
+            const overlay = document.getElementById("overlay");
+            const overlayTitle = document.getElementById("overlayTitle");
+            const overlayText = document.getElementById("overlayText");
+            const startBtn = document.getElementById("startBtn");
+            const restartBtn = document.getElementById("restartBtn");
+
+            const distanceEl = document.getElementById("distance");
+            const scoreEl = document.getElementById("score");
+            const livesEl = document.getElementById("lives");
+            const bestEl = document.getElementById("best");
+            const statusEl = document.getElementById("status");
+            const streakInfoEl = document.getElementById("streakInfo");
+            const resultTextEl = document.getElementById("resultText");
+
+            const laneLeft = 110;
+            const laneRight = canvas.width - 110;
+
+            const keys = {
+                left: false,
+                right: false,
+                boost: false
+            };
+
+            const player = {
+                x: canvas.width / 2,
+                y: canvas.height - 95,
+                radius: 18,
+                speed: 360,
+                burstTimer: 0
+            };
+
+            let obstacles = [];
+            let pickups = [];
+            let snow = [];
+            let running = false;
+            let lastTime = 0;
+            let spawnTimer = 0;
+            let pickupTimer = 0;
+            let distance = 0;
+            let score = 0;
+            let lives = 3;
+            let streak = 0;
+            let maxStreak = 0;
+            let frameDistance = 0;
+            let boostMeter = 0;
+            let countdownActive = false;
+            let countdownStart = 0;
+            let damageFlash = 0;
+            let damageMessage = "";
+
+            const bestRun = Number(localStorage.getItem("skiLineRushBest") || 0);
+            bestEl.textContent = String(bestRun);
+
+            function resetGame() {
+                player.x = canvas.width / 2;
+                player.burstTimer = 0;
+                obstacles = [];
+                pickups = [];
+                snow = [];
+                spawnTimer = 0;
+                pickupTimer = 0;
+                distance = 0;
+                score = 0;
+                lives = 3;
+                streak = 0;
+                maxStreak = 0;
+                boostMeter = 0;
+                countdownActive = false;
+                damageFlash = 0;
+                damageMessage = "";
+                statusEl.textContent = "Carve clean and build your streak.";
+                resultTextEl.textContent = "No run completed yet.";
+                updateHud();
+            }
+
+            function startGame() {
+                resetGame();
+                running = false;
+                countdownActive = true;
+                countdownStart = performance.now();
+                overlay.style.display = "flex";
+                overlayTitle.textContent = "Get Ready";
+                overlayText.textContent = "Starting in 3...";
+                startBtn.textContent = "Starting...";
+                startBtn.disabled = true;
+                restartBtn.disabled = true;
+                draw();
+                requestAnimationFrame(countdownLoop);
+            }
+
+            function endGame() {
+                running = false;
+                overlay.style.display = "flex";
+                overlayTitle.textContent = "Run Over";
+                overlayText.textContent = "Distance: " + Math.floor(distance) + " m | Score: " + score + " | Max streak: " + maxStreak;
+
+                const priorBest = Number(localStorage.getItem("skiLineRushBest") || 0);
+                if (score > priorBest) {
+                    localStorage.setItem("skiLineRushBest", String(score));
+                    bestEl.textContent = String(score);
+                    resultTextEl.innerHTML = "<span class=\"good\">New best run!</span> You just set a new high score.";
+                } else {
+                    resultTextEl.innerHTML = "<span class=\"bad\">Wipeout.</span> Hit restart and chase a cleaner line.";
+                }
+            }
+
+            function updateHud() {
+                distanceEl.textContent = Math.floor(distance) + " m";
+                scoreEl.textContent = String(score);
+                livesEl.textContent = String(lives);
+                streakInfoEl.textContent = "Streak: " + streak;
+                document.getElementById("boost").textContent = Math.max(0, Math.min(100, Math.round(boostMeter))) + "%";
+            }
+
+            function spawnObstacle(speed) {
+                const width = 26 + Math.random() * 16;
+                obstacles.push({
+                    x: laneLeft + Math.random() * (laneRight - laneLeft),
+                    y: -30,
+                    w: width,
+                    h: width + 14,
+                    kind: Math.random() < 0.65 ? "tree" : "ice",
+                    speed: speed * (0.85 + Math.random() * 0.4)
+                });
+            }
+
+            function spawnPickup(speed) {
+                const isBoost = Math.random() < 0.16;
+                pickups.push({
+                    x: laneLeft + Math.random() * (laneRight - laneLeft),
+                    y: -24,
+                    r: isBoost ? 13 : 11,
+                    speed: speed * (isBoost ? 0.82 : 0.9),
+                    value: isBoost ? 0 : 120,
+                    kind: isBoost ? "boost" : "powder"
+                });
+            }
+
+            function addSnow() {
+                for (let i = 0; i < 3; i += 1) {
+                    snow.push({
+                        x: Math.random() * canvas.width,
+                        y: -10,
+                        r: Math.random() * 2 + 0.8,
+                        s: Math.random() * 110 + 90
+                    });
+                }
+            }
+
+            function movePlayer(dt) {
+                let move = 0;
+                if (keys.left) {
+                    move -= 1;
+                }
+                if (keys.right) {
+                    move += 1;
+                }
+
+                if (keys.boost && player.burstTimer <= 0 && boostMeter > 0) {
+                    player.burstTimer = 0.65;
+                    boostMeter = Math.max(0, boostMeter - 35);
+                }
+
+                const burstMultiplier = player.burstTimer > 0 ? 1.9 : 1;
+                player.x += move * player.speed * burstMultiplier * dt;
+                player.x = Math.max(laneLeft, Math.min(laneRight, player.x));
+
+                if (player.burstTimer > 0) {
+                    player.burstTimer -= dt;
+                }
+            }
+
+            function updateWorld(dt) {
+                const difficulty = 1 + Math.min(distance / 850, 1.55);
+                const baseSpeed = 220 * difficulty;
+                const spawnInterval = Math.max(0.24, 0.72 - distance / 3600);
+                const pickupInterval = Math.max(0.95, 1.6 - distance / 6500);
+
+                player.speed = 360 + Math.min(distance * 0.045, 190);
+                frameDistance += baseSpeed * dt * 0.42;
+
+                spawnTimer += dt;
+                pickupTimer += dt;
+
+                if (spawnTimer > spawnInterval) {
+                    spawnTimer = 0;
+                    spawnObstacle(baseSpeed);
+                }
+
+                if (pickupTimer > pickupInterval) {
+                    pickupTimer = 0;
+                    spawnPickup(baseSpeed);
+                }
+
+                addSnow();
+
+                distance += baseSpeed * dt * 0.08;
+                score += Math.floor((baseSpeed * dt * 0.35) * (1 + streak * 0.06));
+                boostMeter = Math.min(100, boostMeter + dt * 4.5);
+                if (damageFlash > 0) {
+                    damageFlash = Math.max(0, damageFlash - dt * 1.9);
+                }
+
+                obstacles.forEach((o) => {
+                    o.y += o.speed * dt;
+                });
+                pickups.forEach((p) => {
+                    p.y += p.speed * dt;
+                });
+                snow.forEach((s) => {
+                    s.y += s.s * dt;
+                });
+
+                obstacles = obstacles.filter((o) => o.y < canvas.height + 40);
+                pickups = pickups.filter((p) => p.y < canvas.height + 30);
+                snow = snow.filter((s) => s.y < canvas.height + 20);
+
+                handleCollisions();
+                updateHud();
+
+                if (streak > maxStreak) {
+                    maxStreak = streak;
+                }
+
+                const pace = difficulty > 2.1 ? "Steep line. Stay composed." : difficulty > 1.5 ? "Speed building." : "Building speed.";
+                statusEl.textContent = pace;
+            }
+
+            function hitObstacle(obstacle) {
+                lives -= 1;
+                streak = 0;
+                obstacle.y = canvas.height + 100;
+                player.burstTimer = 0;
+                damageFlash = 1;
+                damageMessage = obstacle.kind === "tree" ? "Tree hit - speed checked" : "Ice hit - you slipped";
+                statusEl.innerHTML = "<span class=\"bad\">" + damageMessage + "</span>";
+                resultTextEl.innerHTML = "<span class=\"bad\">Damage taken.</span> You lost a life and your streak.";
+
+                if (lives <= 0) {
+                    endGame();
+                }
+            }
+
+            function collectPickup(pickup) {
+                if (pickup.kind === "boost") {
+                    boostMeter = Math.min(100, boostMeter + 38);
+                    score += 85 + streak * 15;
+                    statusEl.innerHTML = "<span class=\"good\">Boost pickup!</span> Press Space for a burst.";
+                } else {
+                    streak += 1;
+                    score += pickup.value + streak * 25;
+                    statusEl.innerHTML = "<span class=\"good\">Powder stash!</span> Keep linking turns.";
+                }
+                pickup.y = canvas.height + 100;
+            }
+
+            function handleCollisions() {
+                for (const o of obstacles) {
+                    const halfW = o.w / 2;
+                    const halfH = o.h / 2;
+                    const cx = o.x;
+                    const cy = o.y;
+                    const nearestX = Math.max(cx - halfW, Math.min(player.x, cx + halfW));
+                    const nearestY = Math.max(cy - halfH, Math.min(player.y, cy + halfH));
+                    const dx = player.x - nearestX;
+                    const dy = player.y - nearestY;
+
+                    if ((dx * dx + dy * dy) < (player.radius * player.radius)) {
+                        hitObstacle(o);
+                        break;
+                    }
+                }
+
+                for (const p of pickups) {
+                    const dx = player.x - p.x;
+                    const dy = player.y - p.y;
+                    const distSq = dx * dx + dy * dy;
+                    const rr = player.radius + p.r;
+
+                    if (distSq < rr * rr) {
+                        collectPickup(p);
+                    }
+                }
+            }
+
+            function drawTrack() {
+                const stripe = 44;
+                const mountainShift = (frameDistance * 0.12) % 220;
+                ctx.save();
+
+                const sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                sky.addColorStop(0, "#5ba0db");
+                sky.addColorStop(0.28, "#d7efff");
+                sky.addColorStop(0.5, "#f3fbff");
+                sky.addColorStop(1, "#fdfefe");
+                ctx.fillStyle = sky;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // distant mountain range
+                ctx.fillStyle = "#6f879f";
+                ctx.beginPath();
+                ctx.moveTo(0, 170);
+                ctx.lineTo(75, 120);
+                ctx.lineTo(160, 150);
+                ctx.lineTo(250, 92);
+                ctx.lineTo(350, 160);
+                ctx.lineTo(460, 108);
+                ctx.lineTo(560, 170);
+                ctx.lineTo(650, 118);
+                ctx.lineTo(760, 150);
+                ctx.lineTo(860, 96);
+                ctx.lineTo(canvas.width, 150);
+                ctx.lineTo(canvas.width, 0);
+                ctx.lineTo(0, 0);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.fillStyle = "#8799ad";
+                ctx.beginPath();
+                ctx.moveTo(-40 + mountainShift * 0.2, 230);
+                ctx.lineTo(80 + mountainShift * 0.2, 165);
+                ctx.lineTo(180 + mountainShift * 0.2, 220);
+                ctx.lineTo(290 + mountainShift * 0.2, 145);
+                ctx.lineTo(390 + mountainShift * 0.2, 220);
+                ctx.lineTo(500 + mountainShift * 0.2, 150);
+                ctx.lineTo(610 + mountainShift * 0.2, 235);
+                ctx.lineTo(730 + mountainShift * 0.2, 165);
+                ctx.lineTo(850 + mountainShift * 0.2, 220);
+                ctx.lineTo(canvas.width + 40, 180);
+                ctx.lineTo(canvas.width, 0);
+                ctx.lineTo(0, 0);
+                ctx.closePath();
+                ctx.fill();
+
+                // snowcaps on peaks
+                ctx.fillStyle = "#f7fbff";
+                const peaks = [
+                    [75, 120], [250, 92], [460, 108], [650, 118], [860, 96]
+                ];
+                peaks.forEach(([x, y]) => {
+                    ctx.beginPath();
+                    ctx.moveTo(x - 28, y + 28);
+                    ctx.lineTo(x, y - 10);
+                    ctx.lineTo(x + 28, y + 28);
+                    ctx.closePath();
+                    ctx.fill();
+                });
+
+                // sun and distant glow
+                const sunGlow = ctx.createRadialGradient(710, 74, 10, 710, 74, 110);
+                sunGlow.addColorStop(0, "rgba(255, 241, 190, 0.95)");
+                sunGlow.addColorStop(1, "rgba(255, 241, 190, 0)");
+                ctx.fillStyle = sunGlow;
+                ctx.beginPath();
+                ctx.arc(710, 74, 110, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = "#ffd66d";
+                ctx.beginPath();
+                ctx.arc(710, 74, 28, 0, Math.PI * 2);
+                ctx.fill();
+
+                // slope borders and tree lines
+                const sideW = 88;
+                ctx.fillStyle = "#dfe9f2";
+                ctx.fillRect(0, 0, sideW, canvas.height);
+                ctx.fillRect(canvas.width - sideW, 0, sideW, canvas.height);
+
+                ctx.fillStyle = "#b2c7d8";
+                ctx.beginPath();
+                ctx.moveTo(0, 190);
+                ctx.lineTo(92, 160);
+                ctx.lineTo(92, canvas.height);
+                ctx.lineTo(0, canvas.height);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(canvas.width, 160);
+                ctx.lineTo(canvas.width - 92, 190);
+                ctx.lineTo(canvas.width - 92, canvas.height);
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.closePath();
+                ctx.fill();
+
+                // tree silhouettes along the slopes
+                const treeBands = [62, 110, canvas.width - 62, canvas.width - 110];
+                treeBands.forEach((xBase, idx) => {
+                    for (let y = 190 + idx * 16; y < canvas.height; y += 68) {
+                        ctx.fillStyle = idx < 2 ? "#2b6d42" : "#22563a";
+                        ctx.beginPath();
+                        ctx.moveTo(xBase, y - 14);
+                        ctx.lineTo(xBase - 16, y + 20);
+                        ctx.lineTo(xBase + 16, y + 20);
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.fillStyle = "#725038";
+                        ctx.fillRect(xBase - 2, y + 18, 4, 10);
+                    }
+                });
+
+                ctx.strokeStyle = "#86afd3";
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(laneLeft - 20, 0);
+                ctx.lineTo(laneLeft - 20, canvas.height);
+                ctx.moveTo(laneRight + 20, 0);
+                ctx.lineTo(laneRight + 20, canvas.height);
+                ctx.stroke();
+
+                ctx.fillStyle = "rgba(255,255,255,0.9)";
+                ctx.beginPath();
+                ctx.moveTo(0, 270);
+                ctx.quadraticCurveTo(180, 220, 420, 250);
+                ctx.quadraticCurveTo(640, 278, canvas.width, 236);
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.lineTo(0, canvas.height);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.strokeStyle = "rgba(90, 130, 170, 0.22)";
+                ctx.lineWidth = 1;
+                for (let y = 0; y < canvas.height; y += stripe) {
+                    ctx.beginPath();
+                    ctx.moveTo(laneLeft - 10, y + mountainShift * 0.08);
+                    ctx.lineTo(laneRight + 10, y + 18 + mountainShift * 0.08);
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+
+            function drawSnow() {
+                ctx.fillStyle = "rgba(255,255,255,0.85)";
+                for (const s of snow) {
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            function drawObstacle(o) {
+                if (o.kind === "tree") {
+                    ctx.fillStyle = "#1f6b3f";
+                    ctx.beginPath();
+                    ctx.moveTo(o.x, o.y - o.h * 0.6);
+                    ctx.lineTo(o.x - o.w * 0.6, o.y + o.h * 0.4);
+                    ctx.lineTo(o.x + o.w * 0.6, o.y + o.h * 0.4);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    ctx.fillStyle = "#5c3c23";
+                    ctx.fillRect(o.x - 4, o.y + o.h * 0.35, 8, o.h * 0.4);
+                } else {
+                    ctx.fillStyle = "#96c7ef";
+                    ctx.beginPath();
+                    ctx.ellipse(o.x, o.y, o.w * 0.7, o.h * 0.35, 0.2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = "#70a9d6";
+                    ctx.stroke();
+                }
+            }
+
+            function drawPickup(p) {
+                if (p.kind === "boost") {
+                    ctx.fillStyle = "#2f88d8";
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = "#ffffff";
+                    ctx.font = "bold 12px Trebuchet MS";
+                    ctx.textAlign = "center";
+                    ctx.fillText("⚡", p.x, p.y + 4);
+                } else {
+                    ctx.fillStyle = "#ffd34f";
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = "#8a5a00";
+                    ctx.font = "bold 12px Trebuchet MS";
+                    ctx.textAlign = "center";
+                    ctx.fillText("P", p.x, p.y + 4);
+                }
+            }
+
+            function drawBoostMeter() {
+                const x = 18;
+                const y = 18;
+                const width = 148;
+                const height = 16;
+                const pct = Math.max(0, Math.min(1, boostMeter / 100));
+
+                ctx.save();
+                ctx.fillStyle = "rgba(14, 28, 46, 0.55)";
+                ctx.fillRect(x - 2, y - 4, width + 4, height + 28);
+                ctx.fillStyle = "#eff6ff";
+                ctx.fillRect(x, y + 18, width, height);
+                ctx.fillStyle = "#2f88d8";
+                ctx.fillRect(x, y + 18, width * pct, height);
+                ctx.strokeStyle = "#b9d1e7";
+                ctx.strokeRect(x, y + 18, width, height);
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 12px Trebuchet MS";
+                ctx.textAlign = "left";
+                ctx.fillText("BOOST", x, y + 11);
+                ctx.restore();
+            }
+
+            function drawDamageFlash() {
+                if (damageFlash <= 0) {
+                    return;
+                }
+
+                ctx.save();
+                ctx.fillStyle = "rgba(177, 49, 49, " + (0.14 * damageFlash) + ")";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "rgba(255,255,255," + (0.92 * damageFlash) + ")";
+                ctx.font = "bold 18px Trebuchet MS";
+                ctx.textAlign = "center";
+                ctx.fillText(damageMessage, canvas.width / 2, 46);
+                ctx.restore();
+            }
+
+            function drawPlayer() {
+                ctx.save();
+                ctx.translate(player.x, player.y);
+
+                ctx.fillStyle = "#d33f3f";
+                ctx.beginPath();
+                ctx.moveTo(0, -26);
+                ctx.lineTo(-20, 18);
+                ctx.lineTo(20, 18);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.fillStyle = "#1c3653";
+                ctx.beginPath();
+                ctx.arc(0, -30, 11, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.strokeStyle = "#12314b";
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(-26, 19);
+                ctx.lineTo(26, 19);
+                ctx.stroke();
+
+                if (player.burstTimer > 0) {
+                    ctx.strokeStyle = "rgba(255, 191, 73, 0.9)";
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(-30, 24);
+                    ctx.lineTo(-50, 36);
+                    ctx.moveTo(30, 24);
+                    ctx.lineTo(50, 36);
+                    ctx.stroke();
+                }
+
+                ctx.restore();
+            }
+
+            function draw() {
+                drawTrack();
+                drawSnow();
+                for (const o of obstacles) {
+                    drawObstacle(o);
+                }
+                for (const p of pickups) {
+                    drawPickup(p);
+                }
+                drawPlayer();
+                drawBoostMeter();
+                drawDamageFlash();
+            }
+
+            function countdownLoop(ts) {
+                if (!countdownActive) {
+                    return;
+                }
+
+                const elapsed = (ts - countdownStart) / 1000;
+                const remaining = Math.max(0, 3 - elapsed);
+                const whole = Math.ceil(remaining);
+
+                overlayTitle.textContent = whole > 0 ? String(whole) : "Drop!";
+                overlayText.textContent = whole > 0 ? "Get set for the run..." : "Go!";
+                startBtn.textContent = whole > 0 ? "Starting in " + whole + "..." : "Starting";
+
+                if (remaining <= 0) {
+                    countdownActive = false;
+                    startBtn.disabled = false;
+                    restartBtn.disabled = false;
+                    startBtn.textContent = "Start Run";
+                    overlay.style.display = "none";
+                    running = true;
+                    lastTime = performance.now();
+                    requestAnimationFrame(loop);
+                    return;
+                }
+
+                requestAnimationFrame(countdownLoop);
+            }
+
+            function loop(ts) {
+                if (!running) {
+                    return;
+                }
+
+                const dt = Math.min((ts - lastTime) / 1000, 0.04);
+                lastTime = ts;
+
+                movePlayer(dt);
+                updateWorld(dt);
+                draw();
+
+                if (running) {
+                    requestAnimationFrame(loop);
+                }
+            }
+
+            function onKeyDown(e) {
+                if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
+                    keys.left = true;
+                }
+                if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") {
+                    keys.right = true;
+                }
+                if (e.code === "Space") {
+                    e.preventDefault();
+                    keys.boost = true;
+                }
+            }
+
+            function onKeyUp(e) {
+                if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
+                    keys.left = false;
+                }
+                if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") {
+                    keys.right = false;
+                }
+                if (e.code === "Space") {
+                    keys.boost = false;
+                }
+            }
+
+            window.addEventListener("keydown", onKeyDown);
+            window.addEventListener("keyup", onKeyUp);
+
+            startBtn.addEventListener("click", startGame);
+            restartBtn.addEventListener("click", startGame);
+
+            resetGame();
+            draw();
+        })();
+    </script>
+</body>
+</html>
